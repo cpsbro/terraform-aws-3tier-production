@@ -1,0 +1,5 @@
+variable "db_username" {}
+variable "db_password" {}
+variable "subnets" { type = list(string) }
+variable "vpc_id" {}
+

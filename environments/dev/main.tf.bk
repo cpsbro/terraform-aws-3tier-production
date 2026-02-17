@@ -1,0 +1,57 @@
+##################
+# VPC MODULE
+##################
+
+module "vpc" {
+  source = "../../modules/vpc"
+
+  vpc_cidr        = var.vpc_cidr
+  azs             = var.azs
+  public_subnets  = var.public_subnets
+  private_subnets = var.private_subnets
+  vpc_name        = "${var.environment}-vpc"
+}
+
+
+##################
+# ALB MODULE
+##################
+
+module "alb" {
+  source = "../../modules/alb"
+
+  name = "${var.environment}-alb"
+  vpc_id   = module.vpc.vpc_id
+  subnets  = module.vpc.public_subnet_ids
+}
+
+
+##################
+# EC2 MODULE
+##################
+
+module "ec2" {
+  source        = "../../modules/ec2"
+
+  vpc_id        = module.vpc.vpc_id
+  subnets       = module.vpc.private_subnet_ids
+  ami           = var.ami
+  instance_type = var.instance_type
+  alb_sg        = module.alb.alb_sg_id
+}
+
+
+##################
+# RDS MODULE
+##################
+
+module "rds" {
+  source = "../../modules/rds"
+
+  vpc_id      = module.vpc.vpc_id
+  subnets     = module.vpc.private_subnet_ids
+  db_username = var.db_username
+  db_password = var.db_password
+}
+
+
